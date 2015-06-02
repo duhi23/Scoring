@@ -40,7 +40,8 @@ base_info <- base_info[,.(NUM, PTO_OBS, MORA_N0, DIAS_VEN_N0, CANT_DESEMP, MAX_D
 head(base_info)
 base_info$GB_60 <- as.numeric(base_info$GB_60)
 base_info$GB_90 <- as.numeric(base_info$GB_90)
-colnames(base_info) <- c("identificacion", "PTO_OBS", "MORA_N0", "DIAS_VEN_N0", "CANT_DESEMP", "MAX_DIAS_VEN", "GB_60", "GB_90")
+#colnames(base_info) <- c("identificacion", "PTO_OBS", "MORA_N0", "DIAS_VEN_N0", "CANT_DESEMP", "MAX_DIAS_VEN", "GB_60", "GB_90")
+setnames(base_info, "NUM", "identificacion")
 unlist(lapply(base_info, class))
 
 setkey(base_info, identificacion)
@@ -48,10 +49,24 @@ setkey(data, identificacion)
 
 datos <- merge(data, base_info, all.y = TRUE)
 head(datos)
+dim(datos)
 
-with(datos, round(100*prop.table(table(provincia, GB_60), margin=1),2))
+# Porcentaje default por provincia
+with(datos, round(100*prop.table(table(provincia, GB_60), margin=1), 2))
+# Creamos la variable region
+#datos[, region:=ifelse(datos$provincia %in% c("ESMERALDAS", "GUAYAS", "LOS RIOS", "MANABI", "SANTA ELENA", "EL ORO", "STO DGO TSACHILAS"), 1, 
+#                       ifelse(datos$provincia %in% c("AZUAY", "BOLIVAR", "CANAR", "CARCHI", "CHIMBORAZO", "COTOPAXI", "IMBABURA", "LOJA", 
+#                                                     "PICHINCHA", "TUNGURAHUA"), 2, 3))]
+datos[, region:=ifelse(datos$provincia %in% c("ESMERALDAS", "GUAYAS", "LOS RIOS", "MANABI", "SANTA ELENA", "EL ORO", "STO DGO TSACHILAS"), 1, 2)]
+colnames(datos)
 
-datos[provincia %in% c("ESMERALDAS", "GUAYAS", "LOS RIOS", "MANABI", "SANTA ELENA", "EL ORO")]
+# Casos para modelamiento
+with(datos, table(region, GB_60))
+# Porcentaje default por region
+with(datos, round(100*prop.table(table(region, GB_60), margin=1),2))
+
+datos_sierra <- 
+datos_costa <- 
 
 
 
